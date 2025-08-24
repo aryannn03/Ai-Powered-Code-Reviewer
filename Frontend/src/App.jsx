@@ -10,9 +10,7 @@ import './App.css'
 import { BeatLoader } from "react-spinners"
 
 function App() {
-  const [code, setCode] = useState(`function sum() {
-  return 1 + 1
-}`)
+  const [code, setCode] = useState(``)
   const [review, setReview] = useState(``)
   const [loading, setLoading] = useState(false) // spinner state
 
@@ -27,7 +25,7 @@ function App() {
       const response = await axios.post('http://localhost:3000/ai/get-review', { code })
       setReview(response.data)
     } catch (error) {
-      setReview("⚠️ Error fetching review")
+      setReview("Error fetching review")
     } finally {
       setLoading(false) // hide spinner
     }
@@ -37,7 +35,23 @@ function App() {
     <>
       <main>
         <div className="left">
-          <div className="code">
+          <div className="code" style={{ position: "relative" }}>
+            {/* Placeholder */}
+            {code.trim() === "" && (
+              <div 
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  left: 12,
+                  color: "#888",
+                  pointerEvents: "none",
+                  fontFamily: '"Fira code", "Fira Mono", monospace',
+                  fontSize: 16
+                }}
+              >
+                Your code here...
+              </div>
+            )}
             <Editor
               value={code}
               onValueChange={code => setCode(code)}
@@ -60,7 +74,7 @@ function App() {
         <div className="right">
           {loading ? (
             <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-              <BeatLoader color="#ffffffff" />
+              <BeatLoader color="#36d7b7" />
             </div>
           ) : (
             <Markdown rehypePlugins={[rehypeHighlight]}>
