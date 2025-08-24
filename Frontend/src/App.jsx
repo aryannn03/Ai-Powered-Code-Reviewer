@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react' 
 import "prismjs/themes/prism-tomorrow.css"
 import Editor from "react-simple-code-editor"
 import prism from "prismjs"
@@ -7,22 +7,30 @@ import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
 import axios from 'axios'
 import './App.css'
+import { BeatLoader } from "react-spinners"
 
 function App() {
-  const [ count, setCount ] = useState(0)
-  const [ code, setCode ] = useState(` function sum() {
+  const [code, setCode] = useState(`function sum() {
   return 1 + 1
 }`)
-
-  const [ review, setReview ] = useState(``)
+  const [review, setReview] = useState(``)
+  const [loading, setLoading] = useState(false) // spinner state
 
   useEffect(() => {
     prism.highlightAll()
   }, [])
 
   async function reviewCode() {
-    const response = await axios.post('http://localhost:3000/ai/get-review', { code })
-    setReview(response.data)
+    try {
+      setLoading(true) // show spinner
+      setReview("") // clear old response
+      const response = await axios.post('http://localhost:3000/ai/get-review', { code })
+      setReview(response.data)
+    } catch (error) {
+      setReview("⚠️ Error fetching review")
+    } finally {
+      setLoading(false) // hide spinner
+    }
   }
 
   return (
@@ -50,17 +58,19 @@ function App() {
             className="review">Review</div>
         </div>
         <div className="right">
-          <Markdown
-
-            rehypePlugins={[ rehypeHighlight ]}
-
-          >{review}</Markdown>
+          {loading ? (
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+              <BeatLoader color="#ffffffff" />
+            </div>
+          ) : (
+            <Markdown rehypePlugins={[rehypeHighlight]}>
+              {review}
+            </Markdown>
+          )}
         </div>
       </main>
     </>
   )
 }
-
-
 
 export default App
